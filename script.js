@@ -2,6 +2,9 @@ const addBtn = document.querySelector(".add-btn");
 const typeModal = document.getElementById("typeModal");
 const formModal = document.getElementById("formModal");
 const detailsModal = document.getElementById("detailsModal");
+const deleteConfirmModal = document.getElementById("deleteConfirmModal");
+const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
 const formTitle = document.getElementById("formTitle");
 const savedList = document.getElementById("savedList");
 const entryForm = document.getElementById("entryForm");
@@ -133,6 +136,28 @@ window.addEventListener("click", (e) => {
     if (e.target === typeModal) closeModal(typeModal);
     if (e.target === formModal) closeModal(formModal);
     if (e.target === detailsModal) closeDetails();
+    if (e.target === deleteConfirmModal) closeModal(deleteConfirmModal);
+});
+
+// Delete confirmation logic
+let idToDelete = null;
+
+function showDeleteConfirm(id) {
+    idToDelete = id;
+    openModal(deleteConfirmModal);
+}
+
+confirmDeleteBtn.addEventListener("click", () => {
+    if (idToDelete) {
+        deleteFromDB(idToDelete);
+        idToDelete = null;
+        closeModal(deleteConfirmModal);
+    }
+});
+
+cancelDeleteBtn.addEventListener("click", () => {
+    idToDelete = null;
+    closeModal(deleteConfirmModal);
 });
 
 // Save entry
@@ -182,8 +207,8 @@ entryForm.addEventListener("submit", function (e) {
 
 // Delete entry from modal
 deleteEntryBtn.addEventListener("click", () => {
-    if (editingId && confirm("Are you sure you want to delete this entry?")) {
-        deleteFromDB(editingId);
+    if (editingId) {
+        showDeleteConfirm(editingId);
     }
 });
 
@@ -333,9 +358,7 @@ function showDetails(id) {
         // Setup action buttons in details modal
         editBtnDetails.onclick = () => openForm(entry.type, entry);
         deleteBtnDetails.onclick = () => {
-            if (confirm("Are you sure you want to delete this entry?")) {
-                deleteFromDB(entry.id);
-            }
+            showDeleteConfirm(entry.id);
         };
         
         openModal(detailsModal);
