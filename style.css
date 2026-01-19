@@ -296,6 +296,24 @@ body {
     transform: translateY(0);
 }
 
+.confirm-modal {
+    max-width: 450px;
+    text-align: center;
+    padding: 2.5rem 2rem;
+}
+
+.confirm-modal h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.confirm-modal p {
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
 #detailsModal .modal-content {
     padding: 0;
     max-width: 850px;
@@ -625,3 +643,4 @@ form input:focus, form select:focus {
         font-size: 2.5rem;
     }
 }
+
