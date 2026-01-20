@@ -499,8 +499,99 @@ body.dark-theme .stat-value {
         border-color: rgba(212, 175, 55, 0.35);
     }
 
-    body.dark-theme #searchInput::placeholder {
-        color: rgba(226, 232, 240, 0.7);
+    body.dark-theme .form-group label {
+        color: var(--accent-color);
+    }
+
+    body.dark-theme .modal-content h3:not([style]) {
+        color: #e6edf3;
+    }
+
+    body.dark-theme .confirm-modal p {
+        color: #94a3b8;
+    }
+
+    body.dark-theme .close-btn {
+        color: #e6edf3;
+    }
+
+    body.dark-theme .alert-item {
+        background-color: #0f172a;
+        color: #e6edf3;
+        border-color: #223049;
+    }
+
+    body.dark-theme .alert-name {
+        color: var(--accent-color);
+    }
+
+    body.dark-theme .alert-date {
+        color: #94a3b8;
+    }
+
+    body.dark-theme #financeBody {
+        background-color: #0f172a !important;
+        color: #e6edf3;
+    }
+
+    body.dark-theme .finance-item {
+        border-bottom-color: #223049;
+    }
+
+    body.dark-theme #financeBody [style*="color: var(--primary-color)"] {
+        color: var(--accent-color) !important;
+    }
+
+    body.dark-theme #financeBody [style*="color: #666"] {
+        color: #94a3b8 !important;
+    }
+
+    body.dark-theme #financeBody [style*="background-color: var(--bg-color)"] {
+        background-color: #0b1220 !important;
+    }
+
+    body.dark-theme #financeBody [style*="background: var(--bg-color)"] {
+        background: #0b1220 !important;
+    }
+
+    body.dark-theme .chart-card {
+        background-color: #111827;
+        border-color: #243244;
+    }
+
+    body.dark-theme .saved-list {
+        color: #e6edf3;
+    }
+
+    body.dark-theme .stat-card.active {
+        background-color: #1e293b;
+    }
+
+    body.dark-theme .navbar,
+    body.dark-theme .nav-link,
+    body.dark-theme .delete-btn-modal,
+    body.dark-theme .choice-btn,
+    body.dark-theme .fab-main.active,
+    body.dark-theme .status-overdue {
+        color: #ffffff !important;
+    }
+
+    body.dark-theme .fab-main.active {
+        border-color: #ffffff !important;
+    }
+
+    body.dark-theme .fab-item {
+        background-color: #111827;
+        border-color: var(--accent-color);
+    }
+
+    body.dark-theme .fab-item:hover {
+        background-color: var(--accent-color);
+    }
+
+    body.dark-theme #searchInput::placeholder,
+    body.dark-theme form input::placeholder {
+        color: rgba(226, 232, 240, 0.5);
     }
 
     .saved-list h2 {
