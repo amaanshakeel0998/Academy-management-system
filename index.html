@@ -212,6 +212,17 @@
     </div>
 </div>
 
+<!-- Modal 7: Financial Report -->
+<div class="modal" id="financeModal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal(financeModal)">&times;</span>
+        <h3 id="financeTitle" style="background-color: var(--primary-color); color: var(--accent-color); padding: 1.5rem 2rem; margin: 0; border-bottom: 4px solid var(--accent-color);">Monthly Financial Overview</h3>
+        <div id="financeBody" style="padding: 2rem; background-color: var(--white);">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</div>
+
 <!-- Floating Action Menu -->
 <div class="fab-container">
     <div class="fab-menu" id="fabMenu">
@@ -221,8 +232,11 @@
         <button class="fab-item" id="openAnalyticsBtn" title="Enrollment Analytics">
             <span>📈</span>
         </button>
-        <button class="fab-item" id="openAlertsBtn" title="Fee Reminders">
+        <button class="fab-item" id="openFinanceBtn" title="Financial Report">
             <span>💰</span>
+        </button>
+        <button class="fab-item" id="openAlertsBtn" title="Fee Reminders">
+            <span>🔔</span>
             <small class="fab-badge" id="fabBadge" style="display: none;">0</small>
         </button>
         <button class="fab-item" id="exportJsonBtn" title="Export JSON Backup">
