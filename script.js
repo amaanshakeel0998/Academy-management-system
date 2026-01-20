@@ -65,11 +65,39 @@ const importDataBtn = document.getElementById("importDataBtn");
 const restoreFileInput = document.getElementById("restoreFileInput");
 const openAnalyticsBtn = document.getElementById("openAnalyticsBtn");
 const analyticsModal = document.getElementById("analyticsModal");
+const financeModal = document.getElementById("financeModal");
+const financeBody = document.getElementById("financeBody");
+const openFinanceBtn = document.getElementById("openFinanceBtn");
 
 let allEntries = [];
 const notifiedIds = new Set();
 let enrollmentChartInstance = null;
 let currentChartType = 'student';
+let exchangeRates = { PKR: 1, "$": 280, "€": 300 }; // Fallback rates using symbols
+let ratesLastFetched = 0;
+
+async function fetchExchangeRates() {
+    // Only fetch once every hour to save bandwidth/API hits
+    if (Date.now() - ratesLastFetched < 3600000 && ratesLastFetched !== 0) return;
+    
+    try {
+        // Using a reliable public API for PKR base
+        const response = await fetch("https://open.er-api.com/v6/latest/PKR");
+        const data = await response.json();
+        if (data && data.rates) {
+            // Map the symbols to the rates
+            exchangeRates = {
+                "PKR": 1,
+                "$": 1 / data.rates.USD,
+                "€": 1 / data.rates.EUR
+            };
+            ratesLastFetched = Date.now();
+            console.log("Live exchange rates fetched:", exchangeRates);
+        }
+    } catch (err) {
+        console.warn("Failed to fetch live rates, using fallbacks:", err);
+    }
+}
 
 const studentChartBtn = document.getElementById('studentChartBtn');
 const teacherChartBtn = document.getElementById('teacherChartBtn');
@@ -132,6 +160,15 @@ if (openAnalyticsBtn) {
     openAnalyticsBtn.addEventListener('click', () => {
         openModal(analyticsModal);
         updateEnrollmentChart();
+        fabMainBtn.classList.remove('active');
+        fabMenu.classList.remove('show');
+    });
+}
+
+if (openFinanceBtn) {
+    openFinanceBtn.addEventListener('click', async () => {
+        openModal(financeModal);
+        await updateFinancialReport();
         fabMainBtn.classList.remove('active');
         fabMenu.classList.remove('show');
     });
@@ -1024,7 +1061,88 @@ function updateEnrollmentChart() {
     }
 }
 
+async function updateFinancialReport() {
+    financeBody.innerHTML = "<p style='text-align:center; padding: 20px; color: var(--text-color);'>Fetching live exchange rates...</p>";
+    
+    await fetchExchangeRates();
+
+    const report = {
+        totalFeesPKR: 0,
+        totalSalariesPKR: 0,
+        breakdown: [] // To show how we got here
+    };
+
+    allEntries.forEach(entry => {
+        const currency = entry.currency || "PKR";
+        const rate = exchangeRates[currency] || 1;
+        
+        if (entry.type === "student") {
+            const amount = parseFloat(entry.fees) || 0;
+            report.totalFeesPKR += (amount * rate);
+        } else if (entry.type === "teacher") {
+            const amount = parseFloat(entry.salary) || 0;
+            report.totalSalariesPKR += (amount * rate);
+        }
+    });
+
+    renderFinancialReport(report);
+}
+
+function renderFinancialReport(report) {
+    const income = report.totalFeesPKR;
+    const expense = report.totalSalariesPKR;
+    const balance = income - expense;
+    const balanceColor = balance >= 0 ? "#27ae60" : "#e74c3c";
+
+    let html = `
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Main PKR Summary Card -->
+            <div style="background: var(--white); padding: 2rem; border-radius: 20px; border: 2px solid var(--accent-color); box-shadow: 0 8px 24px var(--card-shadow); text-align: center;">
+                <h4 style="color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1.5rem; font-size: 0.9rem; font-weight: 800;">Unified PKR Report (Live Rates)</h4>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+                    <div>
+                        <span style="display: block; font-size: 0.8rem; color: #666; text-transform: uppercase; font-weight: bold; margin-bottom: 5px;">Total Monthly Income</span>
+                        <span style="font-size: 1.8rem; font-weight: 800; color: #27ae60;">PKR ${income.toLocaleString(undefined, {maximumFractionDigits: 0})}</span>
+                    </div>
+                    
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <span style="display: block; font-size: 0.8rem; color: #666; text-transform: uppercase; font-weight: bold; margin-bottom: 5px;">Total Monthly Expenses</span>
+                        <span style="font-size: 1.8rem; font-weight: 800; color: #e74c3c;">PKR ${expense.toLocaleString(undefined, {maximumFractionDigits: 0})}</span>
+                    </div>
+
+                    <div style="border-top: 3px double var(--accent-color); padding-top: 1.5rem; background-color: var(--bg-color); border-radius: 12px; padding: 1.5rem;">
+                        <span style="display: block; font-size: 0.85rem; color: var(--primary-color); text-transform: uppercase; font-weight: 900; margin-bottom: 5px;">Estimated Net Balance</span>
+                        <span style="font-size: 2.2rem; font-weight: 900; color: ${balanceColor};">
+                            ${balance >= 0 ? '+' : ''} PKR ${balance.toLocaleString(undefined, {maximumFractionDigits: 0})}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exchange Rates Info -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                <div style="background: var(--bg-color); padding: 1rem; border-radius: 12px; text-align: center; border: 1px solid var(--border-color);">
+                    <small style="color: #666; display: block;">1 $ Rate</small>
+                    <strong style="color: var(--text-color);">PKR ${exchangeRates["$"].toFixed(2)}</strong>
+                </div>
+                <div style="background: var(--bg-color); padding: 1rem; border-radius: 12px; text-align: center; border: 1px solid var(--border-color);">
+                    <small style="color: #666; display: block;">1 € Rate</small>
+                    <strong style="color: var(--text-color);">PKR ${exchangeRates["€"].toFixed(2)}</strong>
+                </div>
+            </div>
+
+            <div style="background: rgba(212, 175, 55, 0.1); padding: 1rem; border-radius: 12px; border: 1px solid var(--accent-color); color: var(--text-color); font-size: 0.85rem; text-align: center;">
+                <strong>Exchange Rates Status:</strong> Rates are updated live from the market. Last updated: ${new Date(ratesLastFetched).toLocaleTimeString()}
+            </div>
+        </div>
+    `;
+
+    financeBody.innerHTML = html;
+}
+
 // Global scope functions if needed
 window.closeDetails = closeDetails;
 window.deleteFromDB = deleteFromDB;
 window.markAsPaid = markAsPaid;
+window.updateFinancialReport = updateFinancialReport;
