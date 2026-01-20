@@ -17,6 +17,7 @@
         <span class="institute-name">Ilm-Sphere Academy</span>
     </div>
     <div class="nav-right">
+        <button id="themeToggle" class="theme-toggle-btn" title="Toggle Dark/Light Mode">🌙</button>
         <a href="about.html" class="nav-link">About Us</a>
         <button class="add-btn">+</button>
     </div>
@@ -36,6 +37,7 @@
         </div>
     </section>
 
+    
     <div class="saved-list" id="savedList">
         <h2>Saved List</h2>
         <div class="search-container">
@@ -138,6 +140,13 @@
                     <label>Joining Date</label>
                     <input type="date" id="teacherJoinDate">
                 </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Assign Students</label>
+                    <select id="teacherStudents" multiple style="height: 120px;">
+                        <!-- Populated by JS -->
+                    </select>
+                    <small style="color: #666;">Hold Ctrl (or Cmd) to select multiple students</small>
+                </div>
             </div>
 
             <div class="form-actions">
@@ -174,6 +183,67 @@
         </div>
     </div>
 </div>
+
+<!-- Modal 5: Fee Reminders -->
+<div class="modal" id="alertsModal">
+    <div class="modal-content alerts-modal-content">
+        <span class="close-btn" onclick="closeModal(alertsModal)">&times;</span>
+        <h3 id="alertsTitle"><span class="icon">⚠️</span> Fee Reminders</h3>
+        <div id="alertsList" class="alerts-list">
+            <!-- Alert items will be injected here -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal 6: Analytics -->
+<div class="modal" id="analyticsModal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal(analyticsModal)">&times;</span>
+        <h3 id="analyticsTitle" style="background-color: var(--primary-color); color: var(--accent-color); padding: 1.5rem 2rem; margin: 0; border-bottom: 4px solid var(--accent-color);">Enrollment Analytics</h3>
+        <div style="padding: 1.5rem;">
+            <div class="analytics-toggle" style="display: flex; gap: 10px; margin-bottom: 1.5rem; justify-content: center;">
+                <button id="studentChartBtn" class="choice-btn active" style="flex: 1; max-width: 150px; margin: 0; padding: 10px;">Students</button>
+                <button id="teacherChartBtn" class="choice-btn" style="flex: 1; max-width: 150px; margin: 0; padding: 10px;">Teachers</button>
+            </div>
+            <div class="chart-card" style="margin: 0;">
+                <canvas id="enrollmentChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Action Menu -->
+<div class="fab-container">
+    <div class="fab-menu" id="fabMenu">
+        <button class="fab-item" id="exportPdfBtn" title="Export PDF Report">
+            <span>📄</span>
+        </button>
+        <button class="fab-item" id="openAnalyticsBtn" title="Enrollment Analytics">
+            <span>📈</span>
+        </button>
+        <button class="fab-item" id="openAlertsBtn" title="Fee Reminders">
+            <span>💰</span>
+            <small class="fab-badge" id="fabBadge" style="display: none;">0</small>
+        </button>
+        <button class="fab-item" id="exportJsonBtn" title="Export JSON Backup">
+            <span>🗂️</span>
+        </button>
+        <button class="fab-item" id="exportCsvBtn" title="Export CSV">
+            <span>📊</span>
+        </button>
+        <button class="fab-item" id="importDataBtn" title="Import/Restore Data (JSON/CSV)">
+            <span>📥</span>
+        </button>
+    </div>
+    <button class="fab-main" id="fabMainBtn">+</button>
+</div>
+<input type="file" id="restoreFileInput" accept=".json,.csv" style="display: none;" />
+
+<!-- PDF Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
 <script src="script.js"></script>
 </body>
