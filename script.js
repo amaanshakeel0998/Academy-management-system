@@ -68,8 +68,12 @@ const analyticsModal = document.getElementById("analyticsModal");
 const financeModal = document.getElementById("financeModal");
 const financeBody = document.getElementById("financeBody");
 const openFinanceBtn = document.getElementById("openFinanceBtn");
+const monthSelector = document.getElementById("monthSelector");
+const saveMonthBtn = document.getElementById("saveMonthBtn");
 
 let allEntries = [];
+let currentViewMode = "live"; // "live" or "snapshot"
+let currentSnapshotMonth = "";
 const notifiedIds = new Set();
 let enrollmentChartInstance = null;
 let currentChartType = 'student';
@@ -127,22 +131,87 @@ if ("Notification" in window) {
 }
 
 // IndexedDB Initialization
-const request = indexedDB.open("IlmSphereDB", 1);
+const request = indexedDB.open("IlmSphereDB", 2);
 
 request.onupgradeneeded = (e) => {
     db = e.target.result;
     if (!db.objectStoreNames.contains("entries")) {
         db.createObjectStore("entries", { keyPath: "id", autoIncrement: true });
     }
+    if (!db.objectStoreNames.contains("snapshots")) {
+        db.createObjectStore("snapshots", { keyPath: "month" });
+    }
 };
 
 request.onsuccess = (e) => {
     db = e.target.result;
     updateActiveCard(); // Set initial active state
+    loadSnapshotsList();
     loadEntries();
 };
 
 request.onerror = (e) => console.error("Database error:", e.target.error);
+
+// Month Snapshot Logic
+monthSelector.addEventListener("change", (e) => {
+    const val = e.target.value;
+    if (val === "live") {
+        currentViewMode = "live";
+        currentSnapshotMonth = "";
+        addBtn.style.display = "block";
+        saveMonthBtn.style.display = "block";
+        loadEntries();
+    } else {
+        currentViewMode = "snapshot";
+        currentSnapshotMonth = val;
+        addBtn.style.display = "none"; // Disable editing in snapshot mode
+        saveMonthBtn.style.display = "none";
+        loadEntries();
+    }
+});
+
+saveMonthBtn.addEventListener("click", () => {
+    const monthName = prompt("Enter a name for this month (e.g., January 2026):", new Date().toLocaleString('default', { month: 'long', year: 'numeric' }));
+    if (monthName) {
+        saveSnapshot(monthName);
+    }
+});
+
+function saveSnapshot(monthKey) {
+    const transaction = db.transaction(["snapshots"], "readwrite");
+    const store = transaction.objectStore("snapshots");
+    const snapshot = {
+        month: monthKey,
+        entries: allEntries,
+        timestamp: Date.now()
+    };
+    const request = store.put(snapshot);
+    request.onsuccess = () => {
+        alert(`Data for ${monthKey} saved successfully!`);
+        loadSnapshotsList();
+    };
+}
+
+function loadSnapshotsList() {
+    const transaction = db.transaction(["snapshots"], "readonly");
+    const store = transaction.objectStore("snapshots");
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+        const snapshots = request.result;
+        // Keep the first "Live Data" option
+        monthSelector.innerHTML = '<option value="live">Live Data</option>';
+        snapshots.sort((a, b) => b.timestamp - a.timestamp).forEach(s => {
+            const option = document.createElement("option");
+            option.value = s.month;
+            option.text = s.month;
+            if (currentViewMode === "snapshot" && currentSnapshotMonth === s.month) {
+                option.selected = true;
+            }
+            monthSelector.appendChild(option);
+        });
+    };
+}
 
 // Floating Action Menu Toggle
 fabMainBtn.addEventListener("click", () => {
@@ -402,15 +471,26 @@ function deleteFromDB(id) {
 }
 
 function loadEntries() {
-    const transaction = db.transaction(["entries"], "readonly");
-    const store = transaction.objectStore("entries");
-    const request = store.getAll();
+    if (currentViewMode === "live") {
+        const transaction = db.transaction(["entries"], "readonly");
+        const store = transaction.objectStore("entries");
+        const request = store.getAll();
 
-    request.onsuccess = () => {
-        allEntries = request.result;
-        applyFilters(); // Use filtered view on load
-        // Chart is updated when analytics modal is opened
-    };
+        request.onsuccess = () => {
+            allEntries = request.result;
+            applyFilters(); // Use filtered view on load
+        };
+    } else {
+        const transaction = db.transaction(["snapshots"], "readonly");
+        const store = transaction.objectStore("snapshots");
+        const request = store.get(currentSnapshotMonth);
+
+        request.onsuccess = () => {
+            const snapshot = request.result;
+            allEntries = snapshot ? snapshot.entries : [];
+            applyFilters();
+        };
+    }
 }
 
 studentStatCard.addEventListener("click", () => {
@@ -660,26 +740,30 @@ function showDetails(id) {
         
         // Setup action buttons in details modal
         const actionsContainer = detailsModal.querySelector(".form-actions");
-        actionsContainer.innerHTML = `
-            ${entry.type === 'student' ? `<button id="markPaidBtn" class="paid-btn">Mark Done</button>` : ''}
-            <button id="editBtnDetails" class="save-btn">Edit</button>
-            <button id="deleteBtnDetails" class="delete-btn-modal">Delete</button>
-        `;
+        if (currentViewMode === "snapshot") {
+            actionsContainer.innerHTML = `<p style="color: var(--accent-color); font-style: italic; font-size: 0.8rem;">Viewing historical data (Read-only)</p>`;
+        } else {
+            actionsContainer.innerHTML = `
+                ${entry.type === 'student' ? `<button id="markPaidBtn" class="paid-btn">Mark Done</button>` : ''}
+                <button id="editBtnDetails" class="save-btn">Edit</button>
+                <button id="deleteBtnDetails" class="delete-btn-modal">Delete</button>
+            `;
 
-        if (entry.type === 'student') {
-            document.getElementById("markPaidBtn").onclick = () => markAsPaid(entry.id);
-            // Wire contact buttons if contact exists
-            if (entry.guardianContact) {
-                const callBtn = document.getElementById('callBtn');
-                const waBtn = document.getElementById('waBtn');
-                if (callBtn) callBtn.onclick = (e) => { e.stopPropagation(); dialNumber(entry.guardianContact); };
-                if (waBtn) waBtn.onclick = (e) => { e.stopPropagation(); openWhatsAppReminder(entry.guardianContact, entry.name, entry.currency, entry.fees, entry.feesDueDate); };
+            if (entry.type === 'student') {
+                document.getElementById("markPaidBtn").onclick = () => markAsPaid(entry.id);
+                // Wire contact buttons if contact exists
+                if (entry.guardianContact) {
+                    const callBtn = document.getElementById('callBtn');
+                    const waBtn = document.getElementById('waBtn');
+                    if (callBtn) callBtn.onclick = (e) => { e.stopPropagation(); dialNumber(entry.guardianContact); };
+                    if (waBtn) waBtn.onclick = (e) => { e.stopPropagation(); openWhatsAppReminder(entry.guardianContact, entry.name, entry.currency, entry.fees, entry.feesDueDate); };
+                }
             }
+            document.getElementById("editBtnDetails").onclick = () => openForm(entry.type, entry);
+            document.getElementById("deleteBtnDetails").onclick = () => {
+                showDeleteConfirm(entry.id);
+            };
         }
-        document.getElementById("editBtnDetails").onclick = () => openForm(entry.type, entry);
-        document.getElementById("deleteBtnDetails").onclick = () => {
-            showDeleteConfirm(entry.id);
-        };
         
         openModal(detailsModal);
     };
