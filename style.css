@@ -602,15 +602,23 @@ body.dark-theme .stat-value {
     }
 
     .search-container {
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     #searchInput {
-        width: 100%;
+        flex: 1;
+        min-width: 280px;
         max-width: 500px;
         padding: 0.75rem 1.25rem;
+        height: 46px;
         border-radius: 25px;
         border: 2px solid rgba(212, 175, 55, 0.3);
         background-color: rgba(255, 255, 255, 0.1);
@@ -633,6 +641,75 @@ body.dark-theme .stat-value {
 
     #searchInput:focus::placeholder {
         color: #999;
+    }
+
+    .month-controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    #monthSelector {
+        padding: 0.75rem 2.5rem 0.75rem 1.25rem;
+        border-radius: 25px;
+        border: 2px solid rgba(212, 175, 55, 0.4);
+        background-color: rgba(0, 0, 0, 0.2);
+        color: var(--accent-color);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        outline: none;
+        min-width: 180px;
+        transition: all 0.3s;
+        height: 46px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D4AF37' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1.2em;
+    }
+
+    #monthSelector:focus {
+        background-color: var(--white);
+        color: var(--primary-color);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230A2540' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    }
+
+    #monthSelector option {
+        background-color: #0A2540;
+        color: #D4AF37;
+        padding: 15px;
+        font-weight: 600;
+    }
+
+    body.dark-theme #monthSelector option {
+        background-color: #111827;
+        color: #D4AF37;
+    }
+
+    #saveMonthBtn {
+        background-color: var(--accent-color);
+        border: none;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        color: var(--primary-color);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #saveMonthBtn:hover {
+        transform: scale(1.1);
+        background-color: var(--accent-hover);
     }
 
     .saved-item-header {
