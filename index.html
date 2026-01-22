@@ -42,6 +42,13 @@
         <h2>Saved List</h2>
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="Search by name or subject...">
+            <div class="month-controls">
+                <select id="monthSelector">
+                    <option value="live">Live Data</option>
+                    <!-- Populated by JS -->
+                </select>
+                <button id="saveMonthBtn" title="Save Current Month">💾</button>
+            </div>
         </div>
         <div id="entriesContainer"></div>
     </div>
