@@ -9,7 +9,7 @@ A lightweight front-end landing page for an Academy Management System, built wit
 - Single-page structure with sections like hero, about, and contact
 - Basic interactive behaviors via vanilla JavaScript
 
-<div align="center"><span style="font-size: 2em;">Zoyia</span></div>
+# Zoyia
 
 ## Tech Stack
 - HTML
