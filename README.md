@@ -1,4 +1,4 @@
-# Academy Management System — Zoyia
+# Academy Management System
 A lightweight and responsive front-end landing page for an Academy Management System, developed using HTML, CSS, and JavaScript for a person. The design emphasizes clarity, usability, and efficient performance to provide an optimal user experience.
 
 ## Developer
